@@ -1,279 +1,328 @@
-// Данные о пациентах (в реальном приложении эти данные будут приходить с сервера)
-const patientsData = {
-    1: {
-        name: 'Беззубенков Аркадий Иванович',
-        service: 'Ортопедия',
-        age: 35,
-        phone: '+7 (555) 123-4567',
-        lastVisit: '01.03.2025',
-        notes: 'Пациент обратился с жалобами на чувствительность зубов',
-        history: [
-            {
-                date: '15.02.2025',
-                service: 'Консультация',
-                recommendations: 'Рекомендовано провести лечение кариеса и профессиональную чистку'
-            },
-            {
-                date: '10.01.2025',
-                service: 'Профессиональная чистка',
-                recommendations: 'Рекомендовано использовать зубную нить ежедневно'
-            }
-        ]
-    },
-    2: {
-        name: 'Петрова Анна Сергеевна',
-        service: 'Ортодонтия',
-        age: 28,
-        phone: '+7 (999) 234-56-78',
-        lastVisit: '20.03.2024',
-        notes: 'Плановый осмотр, требуется коррекция брекет-системы',
-        history: [
-            {
-                date: '20.02.2024',
-                service: 'Коррекция брекет-системы',
-                recommendations: 'Избегать твердой пищи, продолжать использовать ирригатор'
-            },
-            {
-                date: '20.01.2024',
-                service: 'Коррекция брекет-системы',
-                recommendations: 'Коррекция прошла успешно, следующий визит через месяц'
-            }
-        ]
-    },
-    3: {
-        name: 'Сидоров Петр Николаевич',
-        service: 'Терапия',
-        age: 42,
-        phone: '+7 (999) 345-67-89',
-        lastVisit: '25.03.2024',
-        notes: 'Лечение кариеса на зубе 2.6',
-        history: [
-            {
-                date: '15.03.2024',
-                service: 'Диагностика',
-                recommendations: 'Рекомендовано лечение кариеса на зубе 2.6'
-            }
-        ]
-    },
-    4: {
-        name: 'Козлова Мария Дмитриевна',
-        service: 'Профилактический осмотр',
-        age: 32,
-        phone: '+7 (999) 456-78-90',
-        lastVisit: '10.03.2024',
-        notes: 'Требуется профессиональная чистка зубов',
-        history: [
-            {
-                date: '10.03.2024',
-                service: 'Консультация',
-                recommendations: 'Рекомендована профессиональная чистка зубов'
-            }
-        ]
-    }
-};
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-// Форматирование даты
-function formatDate(date) {
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    return date.toLocaleDateString('ru-RU', options);
-}
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
 
-// Отображение текущей даты
-const today = new Date();
-const tomorrow = new Date();
-tomorrow.setDate(today.getDate() + 1);
+            // Add active class to clicked button
+            button.classList.add('active');
 
-document.getElementById('today-date').textContent = formatDate(today);
-document.getElementById('tomorrow-date').textContent = formatDate(tomorrow);
-
-// Переключение вкладок
-document.querySelectorAll('.tab-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        // Убираем активный класс у всех кнопок и контента
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        // Добавляем активный класс выбранной кнопке и соответствующему контенту
-        button.classList.add('active');
-        const tabId = button.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
-    });
-});
-
-// Переключение между сегодня и завтра
-document.querySelectorAll('.date-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        // Убираем активный класс у всех кнопок и контейнеров с записями
-        document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.appointments-container').forEach(cont => cont.classList.remove('active'));
-        
-        // Добавляем активный класс выбранной кнопке и соответствующему контейнеру
-        tab.classList.add('active');
-        const dateId = tab.getAttribute('data-date');
-        document.getElementById(`${dateId}-appointments`).classList.add('active');
-    });
-});
-
-// Обработка клика по кнопке просмотра данных пациента
-document.querySelectorAll('.btn-view-patient').forEach(button => {
-    button.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const patientId = button.closest('.appointment-card').getAttribute('data-patient-id');
-        showPatientInfo(patientId);
-    });
-});
-
-// Обработка клика по карточке приёма (для обратной совместимости)
-document.querySelectorAll('.appointment-card').forEach(card => {
-    card.addEventListener('click', () => {
-        const patientId = card.getAttribute('data-patient-id');
-        showPatientInfo(patientId);
-    });
-});
-
-// Функция для отображения информации о пациенте
-function showPatientInfo(patientId) {
-    const patient = patientsData[patientId];
-    
-    // Переключаемся на вкладку с информацией о пациенте
-    document.querySelector('[data-tab="patient-info"]').click();
-    
-    // Отображаем информацию о пациенте
-    const patientDetails = document.querySelector('.patient-details');
-    
-    let historyHTML = '';
-    if (patient.history && patient.history.length > 0) {
-        historyHTML = `
-            <div class="patient-history">
-                <h4>История приёмов</h4>
-        `;
-        
-        patient.history.forEach(item => {
-            historyHTML += `
-                <div class="history-item">
-                    <p class="history-date">${item.date} - ${item.service}</p>
-                    <p>${item.recommendations}</p>
-                </div>
-            `;
+            // Show corresponding content
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
         });
-        
-        historyHTML += `</div>`;
-    }
-    
-    patientDetails.innerHTML = `
-        <h3>${patient.name}</h3>
-        <p><strong>Возраст:</strong> ${patient.age} лет</p>
-        <p><strong>Телефон:</strong> ${patient.phone}</p>
-        <p><strong>Последний визит:</strong> ${patient.lastVisit}</p>
-        <p><strong>Услуга:</strong> ${patient.service}</p>
-        <p><strong>Заметки:</strong> ${patient.notes}</p>
-        ${historyHTML}
-    `;
-}
-
-// Обработка кнопки "Вернуться к расписанию"
-document.querySelector('.btn-back-to-schedule').addEventListener('click', () => {
-    document.querySelector('[data-tab="schedule"]').click();
-});
-
-// Обработка отправки формы рекомендаций
-document.getElementById('recommendations-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const patientId = document.getElementById('patient-select').value;
-    const recommendations = document.getElementById('recommendations-text').value;
-    
-    if (patientId && recommendations) {
-        alert(`Рекомендации успешно отправлены пациенту ${patientsData[patientId].name}!`);
-        document.getElementById('recommendations-form').reset();
-    }
-});
-
-// Обработка кнопок переноса/отмены приема
-document.querySelectorAll('.btn-reschedule').forEach(button => {
-    button.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const appointmentCard = button.closest('.appointment-card');
-        const patientId = appointmentCard.getAttribute('data-patient-id');
-        const patient = patientsData[patientId];
-        const timeElement = appointmentCard.querySelector('.appointment-time');
-        
-        // Заполняем модальное окно
-        document.getElementById('reschedule-patient-name').textContent = patient.name;
-        document.getElementById('reschedule-current-time').textContent = timeElement.textContent;
-        
-        // Устанавливаем дату "завтра" как значение по умолчанию
-        const dateInput = document.getElementById('new-date');
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        dateInput.value = tomorrow.toISOString().split('T')[0];
-        
-        // Показываем модальное окно
-        document.getElementById('reschedule-modal').style.display = 'block';
-        
-        // Сохраняем ID пациента для дальнейшего использования
-        document.getElementById('reschedule-form').setAttribute('data-patient-id', patientId);
     });
-});
 
-// Обработка закрытия модального окна
-document.querySelector('.close').addEventListener('click', () => {
-    document.getElementById('reschedule-modal').style.display = 'none';
-});
+    // Modal functionality
+    const modal = document.getElementById('modal');
+    const modalMessage = document.getElementById('modal-message');
+    const closeBtn = document.querySelector('.close');
 
-// Закрытие модального окна при клике вне его содержимого
-window.addEventListener('click', (event) => {
-    const modal = document.getElementById('reschedule-modal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
+    // Close modal when clicking on X
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
     }
-});
 
-// Обработка переключения радио-кнопок для переноса/отмены
-document.querySelectorAll('input[name="action"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        const action = document.querySelector('input[name="action"]:checked').value;
-        
-        if (action === 'reschedule') {
-            document.getElementById('reschedule-options').style.display = 'block';
-            document.getElementById('cancel-options').style.display = 'none';
-        } else {
-            document.getElementById('reschedule-options').style.display = 'none';
-            document.getElementById('cancel-options').style.display = 'block';
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
         }
     });
-});
 
-// Обработка формы переноса/отмены приема
-document.getElementById('reschedule-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const patientId = e.target.getAttribute('data-patient-id');
-    const patient = patientsData[patientId];
-    const action = document.querySelector('input[name="action"]:checked').value;
-    
-    if (action === 'reschedule') {
-        const newDate = document.getElementById('new-date').value;
-        const newTime = document.getElementById('new-time').value;
+    // Show modal with message
+    function showModal(message) {
+        modalMessage.textContent = message;
+        modal.style.display = 'block';
+    }
+
+    // Database simulation for doctors by service
+    const doctorsByService = {
+        'orthopedics': [
+            { id: 'smith', name: 'Андрей Павлович' },
+            { id: 'johnson', name: 'Елена Сергеевна' }
+        ],
+        'orthodontics': [
+            { id: 'williams', name: 'Екатерина Александровна' },
+            { id: 'brown', name: 'Михаил Петрович' }
+        ],
+        'therapy': [
+            { id: 'jones', name: 'Татьяна Говиндовна' },
+            { id: 'miller', name: 'Алексей Иванович' }
+        ],
+        'surgery': [
+            { id: 'davis', name: 'Сергей Николаевич' },
+            { id: 'wilson', name: 'Ольга Владимировна' }
+        ]
+    };
+
+    // Step-by-step form fields
+    const serviceSelect = document.getElementById('service');
+    const doctorGroup = document.getElementById('doctor-group');
+    const doctorSelect = document.getElementById('doctor');
+    const dateGroup = document.getElementById('date-group');
+    const dateInput = document.getElementById('date');
+    const timeGroup = document.getElementById('time-group');
+    const timeSelect = document.getElementById('time');
+
+    // Service selection handling
+    if (serviceSelect) {
+        serviceSelect.addEventListener('change', function() {
+            const service = this.value;
+            if (service) {
+                // Clear and populate doctor select based on service
+                doctorSelect.innerHTML = '<option value="">Выбрать доктора</option>';
+                
+                if (doctorsByService[service]) {
+                    doctorsByService[service].forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = doctor.name;
+                        doctorSelect.appendChild(option);
+                    });
+                }
+                
+                // Show doctor selection
+                doctorGroup.style.display = 'block';
+                
+                // Hide date and time until doctor is selected
+                dateGroup.style.display = 'none';
+                timeGroup.style.display = 'none';
+            } else {
+                // Hide all subsequent fields if service is deselected
+                doctorGroup.style.display = 'none';
+                dateGroup.style.display = 'none';
+                timeGroup.style.display = 'none';
+            }
+        });
+    }
+
+    // Doctor selection handling
+    if (doctorSelect) {
+        doctorSelect.addEventListener('change', function() {
+            if (this.value) {
+                // Show date selection
+                dateGroup.style.display = 'block';
+                
+                // Hide time until date is selected
+                timeGroup.style.display = 'none';
+            } else {
+                // Hide date and time if doctor is deselected
+                dateGroup.style.display = 'none';
+                timeGroup.style.display = 'none';
+            }
+        });
+    }
+
+    // Date selection handling
+    if (dateInput) {
+        // Set minimum date for appointment to today
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
         
-        // Форматирование даты для отображения
-        const dateObj = new Date(newDate);
-        const formattedDate = formatDate(dateObj);
+        dateInput.addEventListener('change', function() {
+            if (this.value) {
+                // Show time selection
+                timeGroup.style.display = 'block';
+            } else {
+                // Hide time if date is deselected
+                timeGroup.style.display = 'none';
+            }
+        });
+    }
+
+    // Function to add a new visit to "My Visits" tab
+    function addNewVisit(service, doctor, date, time) {
+        const visitsList = document.querySelector('.visits-list');
+        if (!visitsList) return;
         
-        alert(`Приём с пациентом ${patient.name} перенесен на ${formattedDate} в ${newTime}`);
-    } else {
-        const reason = document.getElementById('cancel-reason').value;
-        alert(`Приём с пациентом ${patient.name} отменен. Причина: ${reason}`);
+        // Format date for display
+        const visitDate = new Date(date);
+        const formattedDate = visitDate.getDate() + ' ' + 
+                             visitDate.toLocaleString('ru-RU', { month: 'long' }) + ', ' + 
+                             visitDate.getFullYear();
+        
+        // Create new visit card element
+        const visitCard = document.createElement('div');
+        visitCard.className = 'visit-card upcoming';
+        
+        visitCard.innerHTML = `
+            <h3>Новый визит</h3>
+            <p><strong>Дата:</strong> ${formattedDate}</p>
+            <p><strong>Время:</strong> ${time}</p>
+            <p><strong>Доктор:</strong> ${doctor}</p>
+            <p><strong>Услуга:</strong> ${service}</p>
+            <div class="visit-actions">
+                <button class="reschedule-btn">Перенести</button>
+                <button class="cancel-btn">Отменить</button>
+                <button class="review-btn">Оставить отзыв</button>
+            </div>
+        `;
+        
+        // Add to the beginning of the list
+        visitsList.insertBefore(visitCard, visitsList.firstChild);
+        
+        // Add event listeners to the new buttons
+        addVisitCardEventListeners(visitCard);
     }
     
-    // Закрываем модальное окно
-    document.getElementById('reschedule-modal').style.display = 'none';
-});
+    // Add event listeners to a visit card's buttons
+    function addVisitCardEventListeners(visitCard) {
+        const rescheduleBtn = visitCard.querySelector('.reschedule-btn');
+        const cancelBtn = visitCard.querySelector('.cancel-btn');
+        const reviewBtn = visitCard.querySelector('.review-btn');
+        
+        if (rescheduleBtn) {
+            rescheduleBtn.addEventListener('click', function() {
+                if (isWithin48Hours(upcomingVisit.date)) {
+                    showModal('Экстренный перенос приёма возможен только по телефону. Пожалуйста, позвоните в клинику.');
+                } else {
+                    showModal('Вы можете перенести ваш приём на другую дату и время');
+                }
+            });
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                const visitCard = this.closest('.visit-card');
+                
+                if (isWithin48Hours(upcomingVisit.date)) {
+                    showModal('Экстренная отмена приёма возможна только по телефону. Пожалуйста, позвоните в клинику.');
+                } else {
+                    if (confirm('Вы уверены, что хотите отменить запись?')) {
+                        showModal('Ваш приём был успешно отменён');
+                        if (visitCard) {
+                            visitCard.remove();
+                        }
+                    }
+                }
+            });
+        }
+        
+        if (reviewBtn) {
+            reviewBtn.addEventListener('click', function() {
+                showModal('Форма для отзыва будет доступна здесь. Спасибо за ваше мнение!');
+            });
+        }
+    }
 
-// Обработка кнопки выхода
-document.getElementById('logout-btn').addEventListener('click', () => {
-    if (confirm('Вы уверены, что хотите выйти?')) {
-        alert('Вы успешно вышли из системы');
-        // В реальном приложении здесь будет редирект на страницу входа
+    // Form submission handling
+    const appointmentForm = document.getElementById('appointment-form');
+    if (appointmentForm) {
+        appointmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form values
+            const service = document.getElementById('service').value;
+            const doctorValue = document.getElementById('doctor').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            
+            // Get doctor name from select
+            const doctorName = doctorSelect.options[doctorSelect.selectedIndex].text;
+            
+            // Get service name from select
+            const serviceName = serviceSelect.options[serviceSelect.selectedIndex].text;
+
+            // Add the new appointment to My Visits tab
+            addNewVisit(serviceName, doctorName, date, time);
+
+            // In a real application, this would send data to a server
+            // For this demo, we'll just show a modal
+            showModal('Прием успешно забронирован!\n\n' +
+                      'Услуга: ' + serviceName + '\n' +
+                      'Доктор: ' + doctorName + '\n' +
+                      'Дата: ' + date + '\n' +
+                      'Время: ' + time);
+
+            // Reset form
+            appointmentForm.reset();
+            
+            // Hide additional form groups
+            doctorGroup.style.display = 'none';
+            dateGroup.style.display = 'none';
+            timeGroup.style.display = 'none';
+        });
+    }
+
+    // Reschedule and cancel button handling
+    const rescheduleButtons = document.querySelectorAll('.reschedule-btn');
+    const cancelButtons = document.querySelectorAll('.cancel-btn');
+    const reviewButtons = document.querySelectorAll('.review-btn');
+
+    // Check if visit is within 48 hours
+    function isWithin48Hours(visitDate) {
+        const now = new Date();
+        const visitTime = new Date(visitDate);
+        const hoursDiff = (visitTime - now) / (1000 * 60 * 60);
+        return hoursDiff < 48;
+    }
+
+    // Sample visit data (in real app would come from backend)
+    const upcomingVisit = {
+        date: '2025-06-15',
+        time: '10:00'
+    };
+
+    // Handle reschedule buttons
+    rescheduleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Check if visit can be rescheduled
+            if (isWithin48Hours(upcomingVisit.date)) {
+                showModal('Экстренный перенос приёма возможен только по телефону. Пожалуйста, позвоните в клинику.');
+            } else {
+                // In a real app, this would open a reschedule form
+                showModal('Вы можете перенести ваш приём на другую дату и время');
+            }
+        });
+    });
+
+    // Handle cancel buttons
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Get parent visit card element
+            const visitCard = this.closest('.visit-card');
+            
+            // Check if visit can be cancelled
+            if (isWithin48Hours(upcomingVisit.date)) {
+                showModal('Экстренная отмена приёма возможна только по телефону. Пожалуйста, позвоните в клинику.');
+            } else {
+                if (confirm('Вы уверены, что хотите отменить запись?')) {
+                    showModal('Ваш приём был успешно отменён');
+                    // Remove the visit card from DOM
+                    if (visitCard) {
+                        visitCard.remove();
+                    }
+                    // In a real app, this would send cancellation to server
+                }
+            }
+        });
+    });
+
+    // Handle review buttons
+    reviewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // In a real app, this would open a review form
+            showModal('Форма для отзыва будет доступна здесь. Спасибо за ваше мнение!');
+        });
+    });
+
+    // Logout button handling
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                showModal('Вы успешно вышли из системы!');
+                // In a real application, this would redirect to login page
+                // window.location.href = 'login.html';
+            }
+        });
     }
 }); 

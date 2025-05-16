@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет врача-стоматолога</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="schedule">Расписание приёмов</button>
+            <button class="tab-btn" data-tab="patient-info">Информация о пациенте</button>
+            <button class="tab-btn" data-tab="recommendations">Рекомендации пациенту</button>
+            <button class="tab-btn" data-tab="profile">Профиль</button>
+        </nav>
+
+        <div class="tab-content active" id="schedule">
+            <h2>Расписание приёмов</h2>
+            
+            <div class="date-tabs">
+                <button class="date-tab active" data-date="today">Сегодня</button>
+                <button class="date-tab" data-date="tomorrow">Завтра</button>
+            </div>
+            
+            <div class="appointments-container active" id="today-appointments">
+                <h3 class="date-heading">Сегодня, <span id="today-date"></span></h3>
+                <div class="appointments">
+                    <div class="appointment-card" data-patient-id="1">
+                        <div class="appointment-time">09:00</div>
+                        <div class="appointment-info">
+                            <h3>Беззубенков Аркадий Иванович</h3>
+                            <p>Ортопедия</p>
+                            <div class="appointment-actions">
+                                <button class="btn-view-patient">Просмотреть данные пациента</button>
+                                <button class="btn-reschedule">Перенести/отменить визит</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="appointment-card" data-patient-id="2">
+                        <div class="appointment-time">10:30</div>
+                        <div class="appointment-info">
+                            <h3>Петрова Анна Сергеевна</h3>
+                            <p>Ортодонтия</p>
+                            <div class="appointment-actions">
+                                <button class="btn-view-patient">Просмотреть данные пациента</button>
+                                <button class="btn-reschedule">Перенести/отменить визит</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="appointments-container" id="tomorrow-appointments">
+                <h3 class="date-heading">Завтра, <span id="tomorrow-date"></span></h3>
+                <div class="appointments">
+                    <div class="appointment-card" data-patient-id="3">
+                        <div class="appointment-time">11:00</div>
+                        <div class="appointment-info">
+                            <h3>Сидоров Петр Николаевич</h3>
+                            <p>Терапия</p>
+                            <div class="appointment-actions">
+                                <button class="btn-view-patient">Просмотреть данные пациента</button>
+                                <button class="btn-reschedule">Перенести/отменить визит</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="appointment-card" data-patient-id="4">
+                        <div class="appointment-time">14:30</div>
+                        <div class="appointment-info">
+                            <h3>Козлова Мария Дмитриевна</h3>
+                            <p>Профилактический осмотр</p>
+                            <div class="appointment-actions">
+                                <button class="btn-view-patient">Просмотреть данные пациента</button>
+                                <button class="btn-reschedule">Перенести/отменить визит</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="patient-info">
+            <h2>Информация о пациенте</h2>
+            <button class="btn-back-to-schedule">← Вернуться к расписанию</button>
+            <div class="patient-details">
+                <p>Выберите приём из расписания для просмотра информации о пациенте</p>
+            </div>
+        </div>
+
+        <div class="tab-content" id="recommendations">
+            <h2>Рекомендации пациенту</h2>
+            <form id="recommendations-form">
+                <div class="form-group">
+                    <label for="patient-select">Выберите пациента:</label>
+                    <select id="patient-select" required>
+                        <option value="">Выберите пациента</option>
+                        <option value="1">Беззубенков Аркадий Иванович</option>
+                        <option value="2">Петрова Анна Сергеевна</option>
+                        <option value="3">Сидоров Петр Николаевич</option>
+                        <option value="4">Козлова Мария Дмитриевна</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="recommendations-text">Рекомендации:</label>
+                    <textarea id="recommendations-text" rows="6" required placeholder="Введите текст рекомендаций для пациента..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Отправить</button>
+            </form>
+        </div>
+
+        <div class="tab-content" id="profile">
+            <h2>Профиль врача</h2>
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <img src="https://via.placeholder.com/150" alt="Фото врача">
+                </div>
+                <div class="profile-info">
+                    <h3>Андрей Павлович</h3>
+                    <p class="specialization">Врач-стоматолог-терапевт</p>
+                    <p class="experience">Стаж работы: 30 лет</p>
+                </div>
+                <button id="logout-btn" class="btn-secondary">Выйти</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для переноса/отмены приема -->
+    <div id="reschedule-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Перенос/отмена приёма</h2>
+            <form id="reschedule-form">
+                <div class="form-group">
+                    <label>Пациент: <span id="reschedule-patient-name"></span></label>
+                </div>
+                <div class="form-group">
+                    <label>Текущее время: <span id="reschedule-current-time"></span></label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="action" value="reschedule" checked> Перенести
+                    </label>
+                    <label>
+                        <input type="radio" name="action" value="cancel"> Отменить
+                    </label>
+                </div>
+                <div id="reschedule-options">
+                    <div class="form-group">
+                        <label for="new-date">Новая дата:</label>
+                        <input type="date" id="new-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-time">Новое время:</label>
+                        <input type="time" id="new-time" required>
+                    </div>
+                </div>
+                <div id="cancel-options" style="display: none;">
+                    <div class="form-group">
+                        <label for="cancel-reason">Причина отмены:</label>
+                        <textarea id="cancel-reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Сохранить</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
